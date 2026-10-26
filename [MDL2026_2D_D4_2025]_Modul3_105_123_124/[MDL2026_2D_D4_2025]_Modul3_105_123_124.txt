@@ -107,3 +107,118 @@ print(f"Jumlah komponen terhubung: {nx.number_connected_components(G_disconnecte
 **Tips Tambahan:**
 Jika nama (label) masih terpotong atau tumpang tindih dengan *node* lain, Anda bisa menaikkan lagi angka pada parameter `k` (misalnya menjadi `0.8`) dan menyesuaikan besaran kanvas `figsize` sesuai kebutuhan layar Anda.
 
+-----------------------------------------------------------------------------------
+how to identify cut edge on graph
+-----------------------------------------------------------------------------------
+A cut edge (also called a bridge) is an edge in a graph whose removal increases the number of connected components (disconnection).
+
+1. Naive Approach (Definition-Based)
+
+• How it works: Temporarily remove each edge one by one from the graph.
+• Check: Run a traversal (like BFS or DFS) to count the number of connected components.
+• Result: If the component count increases, that edge is a cut edge.
+• Time Complexity: \(O(E \times (V + E))\) — slow for large graphs.
+
+2. Optimized Approach (Tarjan’s Bridge-Finding Algorithm using DFS)
+
+You can find all cut edges in a single Depth-First Search (DFS) in O(V + E) time.
+
+Key Values Maintained During DFS:
+
+• disc[v] (Discovery Time): The timestamp or step number when vertex v is first visited.
+• low[v]: The lowest discovery time reachable from the subtree rooted at v using any back edge.
+
+Condition for a Cut Edge:
+
+An edge (u, v) (where u is the parent and v is the child in the DFS tree) is a cut edge if and only if:
+\(\text{low}[v]>\text{disc}[u]\)
+• Meaning: If the lowest ancestor reachable from v's subtree has a strictly greater discovery time than u, it means there is no back edge from v (or its descendants) to u or any of u's ancestors. Removing (u, v) would strand v and its subtree.
+
+Algorithm Pseudocode:
+
+text
+function DFS(u, parent, disc, low, timer):
+    disc[u] = low[u] = ++timer
+    
+    for each neighbor v of u:
+        if v == parent:
+            continue
+            
+        if v is already visited:
+            // Back edge found
+            low[u] = min(low[u], disc[v])
+        else:
+            DFS(v, u, disc, low, timer)
+            
+            // Backtrack and update low value of u
+            low[u] = min(low[u], low[v])
+            
+            // Check if the edge (u, v) is a cut edge
+            if low[v] > disc[u]:
+                print("Cut edge found:", u, v)
+Gunakan kode dengan hati-hati.
+Would you like to see an example code implementation (such as in Python or C++) for Tarjan's bridge-finding algorithm?
+• 
+Mauricio Poppe
+Cut
+Implementation notes int time_spent; // the adjacency list representation of `G` vector > g; // the time a vertex `i` was discover...
+• 
+GeeksforGeeks
+Articulation Points (or Cut Vertices) in a Graph
+* Courses. * Tutorials. * DSA Tutorial. * Interview Questions. * Must Do. * Advanced DSA. * System Design. * Aptitude. * Puzzles. ...
+
+-----------------------------------------------------------------------------------
+what if its a star topology?
+-----------------------------------------------------------------------------------
+In a star topology, the central node acts as a hub that connects all other peripheral (leaf) nodes together.
+Because of this specific structure, identifying cut edges becomes incredibly simple: every single edge in a star topology graph is a cut edge (bridge).
+
+Why Every Edge is a Cut Edge
+
+1. Single Connection: In a star network, each peripheral node is connected only to the central node. There are no alternative paths or loops (cycles) between peripheral nodes.
+2. Disconnection Effect: If you remove any edge \((C, P)\) connecting the central hub \(C\) to a peripheral node \(P\), node \(P\) becomes completely isolated from the rest of the network.
+3. Component Increase: Removing that edge increases the number of connected components from 1 (the original connected network) to 2 (the isolated node \(P\) and the remaining star network).
+
+Algorithmic Simplification
+
+You do not need Tarjan's algorithm or a full graph traversal for a star topology.
+• If you know the graph is a star topology: Simply list all \(V - 1\) edges. Every one of them is a cut edge.
+• If you remove the central node itself: This is a different concept called a cut vertex (articulation point). Removing the central hub destroys the entire network, splitting it into \(V - 1\) isolated components.
+
+Property / Scenario	General Graph	Star Topology
+Number of Cut Edges	Anywhere from \(0\) to \(V-1\)	Exactly \(V - 1\) (All edges)
+Identification Time Complexity	\(O(V + E)\) via Tarjan's DFS	\(O(1)\) (Structural property)
+Effect of Removing an Edge	Splits graph if the edge isn't part of a cycle	Isolates exactly one peripheral node
+
+Would you like to see how this rule changes if you connect two star topologies together, or would you like to explore cut vertices (articulation points) in a star network?
+-----------------------------------------------------------------------------------
+imagine a highway that use a star topology type-way, explain the context of a cut vertex and cut edge, and why that roads can cause a traffic jam?
+-----------------------------------------------------------------------------------
+Bayangkan sebuah sistem jaringan jalan raya regional di mana terdapat satu bundaran besar atau simpang susun pusat (Central Hub) yang menghubungkan semua kota satelit di sekitarnya. Kota-kota satelit ini tidak memiliki jalan langsung satu sama lain; semuanya harus melewati simpang pusat tersebut.
+Berikut adalah penjelasan mengenai cut vertex, cut edge, dan mengapa desain topologi bintang (star topology) seperti ini menjadi resep utama terjadinya kemacetan parah.
+
+1. Konsep Cut Vertex (Titik Potong)
+
+Dalam topologi jalan raya ini, simpang susun pusat (Central Hub) adalah Cut Vertex.
+• Definisi Kasus: Jika simpang pusat ini ditutup total (misalnya karena perbaikan total, kecelakaan massal, atau banjir), maka seluruh jaringan jalan raya akan runtuh.
+• Dampaknya: Semua kota satelit akan terisolasi sepenuhnya satu sama lain. Mobilitas regional lumpuh total karena tidak ada jalur alternatif (detour) yang memutari pusat tersebut.
+
+2. Konsep Cut Edge (Ruas Jalan Potong)
+
+Setiap ruas jalan raya tunggal yang menghubungkan kota satelit ke pusat adalah Cut Edge.
+• Definisi Kasus: Jika ruas jalan menuju Kota Satelit A mengalami kerusakan atau penutupan jalan, ruas tersebut bertindak sebagai cut edge.
+• Dampaknya: Kota Satelit A langsung terputus dari dunia luar, sementara kota-kota satelit lainnya masih bisa saling terhubung melalui pusat.
+
+Mengapa Topologi Bintang Menyebabkan Kemacetan Parah?
+
+Desain jalan raya berbasis topologi bintang memiliki kelemahan struktural fatal yang memicu kemacetan (traffic jam) karena alasan berikut:
+1. Penyempitan Jalur Massal (Single Point of Failure & Bottleneck): Semua volume kendaraan dari berbagai kota satelit dipaksa menuju satu titik pertemuan yang sama (pusat). Akibatnya, kapasitas tampung simpang pusat akan terlampaui dengan cepat, menciptakan antrean yang mengular ke segala arah.
+2. Ketiadaan Jalur Alternatif (Zero Redundancy): Jika terjadi gangguan kecil saja di satu ruas jalan (misalnya mobil mogok atau perbaikan jalan minor), kendaraan di belakangnya tidak memiliki opsi jalan tikus atau rute lingkar (ring road) untuk menghindar. Semua kendaraan terjebak di jalur yang sama.
+3. Efek Domino yang Cepat: Kemacetan di satu ruas jalan (cut edge) akan mengekor hingga masuk ke area simpang pusat (cut vertex). Begitu simpang pusat terkunci (gridlock), kemacetan akan langsung menular ke ruas-ruas jalan menuju kota satelit lainnya, melumpuhkan seluruh daerah dalam sekejap.
+
+Komponen Jaringan	Peran Topologi Bintang	Dampak Terhadap Kemacetan & Lalulintas
+Simpang Pusat (Central Hub)	Cut Vertex (Artikulasi)	Titik bottleneck utama; jika terkunci (gridlock), seluruh kota lumpuh total.
+Jalan Penghubung Satelit	Cut Edge (Jembatan)	Tidak ada rute alternatif; gangguan kecil langsung menghentikan arus total ke kota tersebut.
+Pola Arus Kendaraan	Terpusat (Convergent)	Volume kendaraan terakumulasi di satu titik, melampaui kapasitas daya tampung jalan.
+
+Jika Anda tertarik, kita bisa membahas bagaimana perancangan Ring Road (Topologi Cincin) atau Grid System (Topologi Mesh) dapat memecahkan masalah kemacetan fatal dari topologi bintang ini. Mana yang ingin Anda pelajari lebih lanjut?
