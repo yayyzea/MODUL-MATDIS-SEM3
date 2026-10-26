@@ -1,0 +1,109 @@
+
+SAYA:
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def visualize_graph(G, title, pos=None, highlight_edges=None, highlight_nodes=None):
+    plt.figure(figsize=(8, 6))
+    if pos is None:
+        if isinstance(G, nx.DiGraph):
+            pos = nx.spring_layout(G, seed=10)
+        else:
+            pos = nx.spring_layout(G, seed=10)
+            
+    # Menggambar semua simpul
+    nx.draw_networkx_nodes(G, pos, node_color='skyblue', node_size=100)
+    
+    # Menggambar semua sisi
+    nx.draw_networkx_edges(G, pos, edge_color='gray')
+
+    # Menggambar label
+    nx.draw_networkx_labels(G, pos, font_size=9, font_family="sans-serif")
+    
+    plt.title(title)
+    plt.axis('off')
+    plt.show()
+
+
+G_disconnected = nx.Graph()
+G_disconnected.add_edges_from([('Dian Sastrowardoyo', 'Najwa Shihab'), #UI
+                               ('Dian Sastrowardoyo', 'Raditya Dika'), 
+                               ('Raditya Dika', 'Sheila Dara'),
+                               ('Ridwan Kamill', 'Devina Hermawan'), #ITB
+                               ('Devina Hermawan', 'Joko Anwar'),
+                               ('Ridwan Kamill', 'Sujiwo Tejo'),
+                               ('Marissa Haque', 'Ifan Seventeen'), #UGM
+                               ('Ikang Fauzi', 'Ifan Seventeen'),
+                               ('Marissa Haque', 'John Tobing'),
+                               ('Ananda Omesh', 'Yura Yunita'), #UNPAD
+                               ('Yura Yunita', 'Uus'),
+                               ('Ananda Omesh','Alshad Ahmad')
+                               ])
+visualize_graph(G_disconnected, "Graf Tidak Terhubung")
+print(f"Apakah graf terhubung? {nx.is_connected(G_disconnected)}")
+print(f"Jumlah komponen terhubung: {nx.number_connected_components(G_disconnected)}")
+
+cara atur node nya gimana kayaknya terlalu deket antar satu sama lain deh dan kecil
+
+AI:
+Untuk mengatur jarak antar *node* (simpul) agar tidak terlalu berdekatan dan memperbesar ukurannya, Anda perlu mengubah tiga hal pada kode Anda:
+
+1. **Memperbesar Ukuran Node**: Ubah parameter `node_size` pada `nx.draw_networkx_nodes` (misalnya dari `100` menjadi `800`).
+2. **Menambah Jarak Antar Node**: Tambahkan parameter `k` pada `nx.spring_layout()`. Parameter `k` mengatur jarak optimal antar node (semakin besar nilainya, semakin jauh jaraknya). Nilai default-nya adalah `1/sqrt(n)`, Anda bisa mencoba nilai seperti `0.5` hingga `1.0`.
+3. **Memperbesar Canvas (Figure Size)**: Ubah `figsize=(8, 6)` menjadi lebih besar, misalnya `(12, 8)`, agar graf memiliki ruang lebih luas.
+
+Berikut adalah kode yang sudah diperbarui:
+
+```python
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def visualize_graph(G, title, pos=None, highlight_edges=None, highlight_nodes=None):
+    # 1. Perbesar ukuran canvas agar tidak sempit
+    plt.figure(figsize=(12, 8))
+    
+    if pos is None:
+        # 2. Tambahkan parameter 'k' untuk merenggangkan jarak antar node
+        if isinstance(G, nx.DiGraph):
+            pos = nx.spring_layout(G, k=0.6, seed=10)
+        else:
+            pos = nx.spring_layout(G, k=0.6, seed=10)
+            
+    # 3. Perbesar ukuran node dari 100 menjadi 800 (atau lebih)
+    nx.draw_networkx_nodes(G, pos, node_color='skyblue', node_size=800)
+    
+    # Menggambar semua sisi
+    nx.draw_networkx_edges(G, pos, edge_color='gray')
+
+    # Menggambar label (bisa juga menaikkan font_size jika perlu)
+    nx.draw_networkx_labels(G, pos, font_size=9, font_family="sans-serif")
+    
+    plt.title(title, fontsize=14)
+    plt.axis('off')
+    plt.show()
+
+
+G_disconnected = nx.Graph()
+G_disconnected.add_edges_from([('Dian Sastrowardoyo', 'Najwa Shihab'), #UI
+                               ('Dian Sastrowardoyo', 'Raditya Dika'), 
+                               ('Raditya Dika', 'Sheila Dara'),
+                               ('Ridwan Kamill', 'Devina Hermawan'), #ITB
+                               ('Devina Hermawan', 'Joko Anwar'),
+                               ('Ridwan Kamill', 'Sujiwo Tejo'),
+                               ('Marissa Haque', 'Ifan Seventeen'), #UGM
+                               ('Ikang Fauzi', 'Ifan Seventeen'),
+                               ('Marissa Haque', 'John Tobing'),
+                               ('Ananda Omesh', 'Yura Yunita'), #UNPAD
+                               ('Yura Yunita', 'Uus'),
+                               ('Ananda Omesh','Alshad Ahmad')
+                               ])
+
+visualize_graph(G_disconnected, "Graf Tidak Terhubung")
+print(f"Apakah graf terhubung? {nx.is_connected(G_disconnected)}")
+print(f"Jumlah komponen terhubung: {nx.number_connected_components(G_disconnected)}")
+
+```
+
+**Tips Tambahan:**
+Jika nama (label) masih terpotong atau tumpang tindih dengan *node* lain, Anda bisa menaikkan lagi angka pada parameter `k` (misalnya menjadi `0.8`) dan menyesuaikan besaran kanvas `figsize` sesuai kebutuhan layar Anda.
+
