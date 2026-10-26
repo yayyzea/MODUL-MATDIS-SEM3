@@ -1,4 +1,12 @@
 SAYA:
+(Mengirimkan kode Python untuk Task 04 terkait simulasi graf K6, matriks insidensi, Handshaking Theorem, dan skenario server down untuk dievaluasi).
+
+Jawaban AI:
+
+AI memvalidasi bahwa logika kode sudah sesuai dengan instruksi modul. Penggunaan itertools.combinations untuk K6 dan matplotlib untuk visualisasi dinilai sudah tepat. AI juga mengonfirmasi bahwa penghitungan derajat, pembentukan Incidence Matrix, dan pengujian konektivitas saat satu server down (menggunakan BFS) sudah berjalan logis, serta mengingatkan untuk tidak lupa menuliskan "Lesson learnt".
+
+---------------------------------------------------------------------------------------------------------------------
+SAYA:
 apkah kode handshaking theorem berarah dan tidak berbeda, apakah seperti ini?
 ```python
 
