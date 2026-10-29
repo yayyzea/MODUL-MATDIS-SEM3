@@ -1,0 +1,113 @@
+Prompting : "Aku lagi ngerjain tugas penjadwalan rapat sub-tim pakai Graph Coloring di Python. 
+Logikanya: sub-tim jadi simpul, dan kalau ada anggota yang sama, dibuat sisi antar sub-tim. Gimana 
+cara bikin fungsi di Python yang efisien buat nyari Chromatic Number  X(G) dan jadwal rapat 
+minimalnya? Tolong sertakan juga pengecekan apakah grafnya Bipartit atau enggak, plus alasannya 
+secara teori."
+
+Ringkasan Jawaban AI yang Diperoleh:
+"AI menyarankan untuk memodelkan keterhubungan anggota menggunakan itertools.combinations dan set 
+intersection (&). Untuk pencarian Chromatic Number, AI menyarankan pendekatan iteratif dipadu algoritma 
+backtracking dengan teknik heuristik Welsh-Powell (mengurutkan simpul dari derajat terbesar) agar pencarian 
+warna optimal lebih cepat. Selain itu, AI memberikan fungsi pengecekan graf bipartit menggunakan algoritma 
+BFS/queue 2-coloring, serta memberikan penjelasan matematis bahwa keberadaan segitiga (siklus ganjil) pada 
+Sub-tim 2, 4, dan 5 membuat X(G) = 3, sehingga graf tersebut tidak tergolong bipartit."
+
+
+```python
+import itertools
+import networkx as nx
+import matplotlib.pyplot as plt
+
+edges = [
+    ('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'E'), ('E', 'F'), ('F', 'A'),
+    ('A', 'C'), ('C', 'E'), ('E', 'A')
+]
+G = nx.Graph(edges)
+
+print("Graf Rute Kurir")
+print("Derajat simpul pada graf rute kurir:")
+for node in G.nodes():
+    print(f"Simpul {node}: {G.degree(node)}")
+
+print("Visualisasi graf rute kurir:")
+pos = nx.spring_layout(G, seed=42)
+nx.draw(G, pos, with_labels=True, node_color='lightgrey', font_weight='bold', node_size=700)
+plt.title("Graf Rute Kurir")
+plt.show()
+
+print("\nEuler Circuit dan Euler Path")
+odd_nodes = [n for n in G.nodes() if G.degree(n) % 2 == 1]
+print(f"Apakah graf terhubung? {nx.is_connected(G)}")
+print(f"Simpul berderajat ganjil: {odd_nodes}")
+print(f"Apakah memiliki Euler Circuit? {nx.is_eulerian(G)}")
+print(f"Apakah memiliki Euler Path? {nx.has_eulerian_path(G)}")
+
+if nx.is_eulerian(G):
+    circuit = [u for u, v in nx.eulerian_circuit(G, source='A')] + ['A']
+    print("Contoh rute kurir (Euler Circuit):", " -> ".join(circuit))
+
+print("\nColoring untuk Alokasi Loker")
+# Area yang berdekatan (terhubung jalan) tidak boleh memakai loker yang sama.
+# Pewarnaan greedy (seperti tutorial01.py) hanya memberi batas ATAS.
+coloring = nx.coloring.greedy_color(G, strategy="largest_first")
+print("Hasil Pewarnaan Greedy:")
+print(coloring)
+print(f"Jumlah warna yang digunakan (greedy): {len(set(coloring.values()))}")
+
+def chromatic_number(graph):
+    nodes = list(graph.nodes())
+    for k in range(1, len(nodes) + 1):
+        for combo in itertools.product(range(k), repeat=len(nodes)):
+            c = dict(zip(nodes, combo))
+            if all(c[u] != c[v] for u, v in graph.edges()):
+                return k, c
+
+chi, best_coloring = chromatic_number(G)
+max_clique = max(len(c) for c in nx.find_cliques(G))
+print(f"Ukuran klik terbesar (batas bawah): {max_clique}")
+print(f"Chromatic Number χ(G) = {chi}")
+print("Alokasi loker (simpul: nomor loker):", dict(sorted(best_coloring.items())))
+
+print("\nVisualisasi Hasil Pewarnaan")
+colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange']
+node_colors = [colors[best_coloring[node] % len(colors)] for node in G.nodes()]
+nx.draw(G, pos, with_labels=True, node_color=node_colors, font_weight='bold', node_size=700)
+plt.title(f"Alokasi Loker (χ(G) = {chi})")
+plt.show()
+
+print("\nHubungan Euler Circuit dan Graph Coloring")
+    "C6 (siklus 6)": nx.cycle_graph(6),
+    "C5 (siklus 5)": nx.cycle_graph(5),
+    "K5 (graf lengkap 5)": nx.complete_graph(5),
+}
+for nama, g in contoh.items():
+    k, _ = chromatic_number(g)
+    print(f"{nama}: Euler Circuit = {nx.is_eulerian(g)}, χ(G) = {k}")
+```
+
+whats wrong with the code
+
+The problem is in the last section. The line that opens the dictionary is missing, so Python hits an indented line with no statement before it and raises a syntax error (`IndentationError: unexpected indent`). The `contoh = {` line was deleted when you removed the comments:
+
+```python
+print("\nHubungan Euler Circuit dan Graph Coloring")
+    "C6 (siklus 6)": nx.cycle_graph(6),   # <- no "contoh = {" before this
+```
+
+Fix:
+
+```python
+print("\nHubungan Euler Circuit dan Graph Coloring")
+contoh = {
+    "C6 (siklus 6)": nx.cycle_graph(6),
+    "C5 (siklus 5)": nx.cycle_graph(5),
+    "K5 (graf lengkap 5)": nx.complete_graph(5),
+}
+for nama, g in contoh.items():
+    k, _ = chromatic_number(g)
+    print(f"{nama}: Euler Circuit = {nx.is_eulerian(g)}, χ(G) = {k}")
+```
+
+[High confidence: the rest of your code matches the version I tested, and this is the only difference.] Because it's a syntax error, Python rejects the whole file before running anything, so you'd see no output at all, not even the earlier sections.
+
+If it still fails after this fix, send me the exact error message.
